@@ -8,6 +8,7 @@ from openbb_core.provider.utils.descriptions import (
     DATA_DESCRIPTIONS,
     QUERY_DESCRIPTIONS,
 )
+from openbb_core.provider.utils.symbol_helpers import Symbol
 from pydantic import Field, field_validator
 
 
@@ -19,8 +20,10 @@ class EquityQuoteQueryParams(QueryParams):
     @field_validator("symbol", mode="before", check_fields=False)
     @classmethod
     def to_upper(cls, v: str) -> str:
-        """Convert field to uppercase."""
-        return v.upper()
+        """Convert field to uppercase and normalize via Symbol."""
+        symbols = v.split(",")
+        normalized = [str(Symbol(s.strip())) for s in symbols if s.strip()]
+        return ",".join(normalized).upper()
 
 
 class EquityQuoteData(Data):

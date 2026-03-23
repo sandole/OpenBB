@@ -11,6 +11,7 @@ from openbb_core.provider.standard_models.equity_quote import (
     EquityQuoteQueryParams,
 )
 from openbb_core.provider.utils.errors import EmptyDataError
+from openbb_core.provider.utils.symbol_helpers import Symbol
 from pydantic import Field, field_validator
 
 
@@ -92,7 +93,11 @@ class FMPEquityQuoteFetcher(
 
         api_key = credentials.get("fmp_api_key") if credentials else ""
         base_url = "https://financialmodelingprep.com/stable/quote?"
-        symbols = query.symbol.split(",")
+        symbols = [
+            Symbol(s.strip()).to_provider_format("fmp")
+            for s in query.symbol.split(",")
+            if s.strip()
+        ]
         results: list = []
 
         async def get_one(symbol):
